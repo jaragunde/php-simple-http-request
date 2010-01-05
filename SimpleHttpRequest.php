@@ -9,9 +9,11 @@
 class SimpleHttpRequest {
 
     private $url;
+    private $parametersArray;
 
     public function __construct($url = null) {
         $this->url = $url;
+        $this->parametersArray = array();
     }
 
     public function setUrl($url) {
@@ -20,6 +22,18 @@ class SimpleHttpRequest {
 
     public function getUrl() {
         return $this->url;
+    }
+
+    public function addParameter($name, $value) {
+        $this->parametersArray[$name] = $value;
+    }
+
+    public function removeParameter($name) {
+        unset($this->parametersArray[$name]);
+    }
+
+    public function getParameters() {
+        return $this->parametersArray;
     }
 
     public function doRequest() {
@@ -31,7 +45,8 @@ class SimpleHttpRequest {
         $ch = curl_init();
 
         // set url
-        curl_setopt($ch, CURLOPT_URL, $this->url);
+        $urlWithParameters = $this->url . $this->prepareParameters();
+        curl_setopt($ch, CURLOPT_URL, $urlWithParameters);
 
         // return the transfer as a string
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -43,5 +58,13 @@ class SimpleHttpRequest {
         curl_close($ch);
 
         return $output;
+    }
+
+    private function prepareParameters() {
+        $parameterString = "?";
+        foreach($this->parametersArray as $name => $value) {
+            $parameterString .= urlencode($name) . "=" . urlencode($value). "&";
+        }
+        return $parameterString;
     }
 }
