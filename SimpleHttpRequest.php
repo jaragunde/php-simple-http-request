@@ -10,6 +10,8 @@ class SimpleHttpRequest {
 
     private $url;
     private $parametersArray;
+    private $hasPost;
+    private $postData;
 
     private $curlHandle;
 
@@ -38,6 +40,22 @@ class SimpleHttpRequest {
         return $this->parametersArray;
     }
 
+    public function setupPost($postData) {
+        $this->hasPost = true;
+        $this->postData = $postData;
+    }
+
+    public function clearPost() {
+        if($this->hasPost) {
+            $this->hasPost = false;
+            unset($this->postData);
+            if($this->curlHandle) {
+                curl_setopt($this->curlHandle, CURLOPT_POST, false);
+                curl_setopt($this->curlHandle, CURLOPT_POSTFIELDS, null);
+            }
+        }
+    }
+
     public function init() {
         // create curl resource
         $this->curlHandle = curl_init();
@@ -55,6 +73,12 @@ class SimpleHttpRequest {
         // set url
         $urlWithParameters = $this->url . $this->prepareParameters();
         curl_setopt($this->curlHandle, CURLOPT_URL, $urlWithParameters);
+
+        // set post data
+        if($this->hasPost) {
+            curl_setopt($this->curlHandle, CURLOPT_POST, true);
+            curl_setopt($this->curlHandle, CURLOPT_POSTFIELDS, $this->postData);
+        }
 
         // return the transfer as a string
         curl_setopt($this->curlHandle, CURLOPT_RETURNTRANSFER, 1);
