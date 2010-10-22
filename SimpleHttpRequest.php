@@ -11,6 +11,8 @@ class SimpleHttpRequest {
     private $url;
     private $parametersArray;
 
+    private $curlHandle;
+
     public function __construct($url = null) {
         $this->url = $url;
         $this->parametersArray = array();
@@ -36,26 +38,29 @@ class SimpleHttpRequest {
         return $this->parametersArray;
     }
 
+    public function init() {
+        // create curl resource
+        $this->curlHandle = curl_init();
+    }
+
+    public function close() {
+        curl_close($this->curlHandle);
+    }
+
     public function doRequest() {
         if($this->url == null) {
             return false;
         }
 
-        // create curl resource
-        $ch = curl_init();
-
         // set url
         $urlWithParameters = $this->url . $this->prepareParameters();
-        curl_setopt($ch, CURLOPT_URL, $urlWithParameters);
+        curl_setopt($this->curlHandle, CURLOPT_URL, $urlWithParameters);
 
         // return the transfer as a string
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($this->curlHandle, CURLOPT_RETURNTRANSFER, 1);
 
         // $output contains the output string
-        $output = curl_exec($ch);
-
-        // close curl resource to free up system resources
-        curl_close($ch);
+        $output = curl_exec($this->curlHandle);
 
         return $output;
     }
