@@ -12,6 +12,9 @@ class SimpleHttpRequest {
     private $parametersArray;
     private $hasPost;
     private $postData;
+    private $hasAuth;
+    private $authLogin;
+    private $authPassword;
 
     private $curlHandle;
 
@@ -56,6 +59,24 @@ class SimpleHttpRequest {
         }
     }
 
+    public function setupHttpAuthentication($login, $password) {
+        $this->hasAuth = true;
+        $this->authLogin = $login;
+        $this->authPassword = $password;
+    }
+
+    public function clearHttpAuthentication() {
+        if($this->hasAuth) {
+            $this->hasAuth = false;
+            $this->authLogin = null;
+            $this->authPassword = null;
+            if($this->curlHandle) {
+                curl_setopt($this->curlHandle, CURLOPT_HTTPAUTH, null);
+                curl_setopt($this->curlHandle, CURLOPT_USERPWD, null);
+            }
+        }
+    }
+
     public function init() {
         // create curl resource
         $this->curlHandle = curl_init();
@@ -78,6 +99,13 @@ class SimpleHttpRequest {
         if($this->hasPost) {
             curl_setopt($this->curlHandle, CURLOPT_POST, true);
             curl_setopt($this->curlHandle, CURLOPT_POSTFIELDS, $this->postData);
+        }
+
+        // set auth data
+        if($this->hasAuth) {
+            curl_setopt($this->curlHandle, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+            curl_setopt($this->curlHandle,CURLOPT_USERPWD,
+                $this->authLogin.":".$this->authPassword);
         }
 
         // return the transfer as a string
