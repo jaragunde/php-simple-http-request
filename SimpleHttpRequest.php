@@ -117,6 +117,10 @@ class SimpleHttpRequest {
         return $output;
     }
 
+    public function getError() {
+        return curl_error($this->curlHandle);
+    }
+
     private function prepareParameters() {
         $parameterString = "?";
         foreach($this->parametersArray as $name => $value) {

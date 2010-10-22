@@ -19,3 +19,13 @@ $request->init();
 echo $request->doRequest();
 $request->clearPost();
 $request->close();
+
+//request with error
+
+$request2 = new SimpleHttpRequest("http://this.url.doesnt.exist");
+
+$request2->init();
+if(!$request2->doRequest()) {
+    echo $request2->getError() . "\n";
+}
+$request2->close();
