@@ -10,6 +10,7 @@ class SimpleHttpRequest {
 
     private $url;
     private $parametersArray;
+    private $headersArray;
     private $hasPost;
     private $postData;
     private $hasAuth;
@@ -21,6 +22,7 @@ class SimpleHttpRequest {
     public function __construct($url = null) {
         $this->url = $url;
         $this->parametersArray = array();
+        $this->headersArray = array();
     }
 
     public function setUrl($url) {
@@ -41,6 +43,18 @@ class SimpleHttpRequest {
 
     public function getParameters() {
         return $this->parametersArray;
+    }
+
+    public function addHeader($name, $value) {
+        $this->headersArray[$name] = $value;
+    }
+
+    public function removeHeader($name) {
+        unset($this->headersArray[$name]);
+    }
+
+    public function getHeaders() {
+        return $this->headersArray;
     }
 
     public function setupPost($postData) {
@@ -95,6 +109,9 @@ class SimpleHttpRequest {
         $urlWithParameters = $this->url . $this->prepareParameters();
         curl_setopt($this->curlHandle, CURLOPT_URL, $urlWithParameters);
 
+        // set headers
+        $this->prepareHeaders($this->curlHandle);
+
         // set post data
         if($this->hasPost) {
             curl_setopt($this->curlHandle, CURLOPT_POST, true);
@@ -128,4 +145,13 @@ class SimpleHttpRequest {
         }
         return $parameterString;
     }
+
+    private function prepareHeaders($curlHandle) {
+        $headers = array();
+        foreach($this->headersArray as $name => $value) {
+             $headers[] = $name . ": " . $value;
+        }
+        curl_setopt($curlHandle, CURLOPT_HTTPHEADER, $headers);
+    }
+
 }
