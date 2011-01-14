@@ -2,14 +2,18 @@
 
 include('SimpleHttpRequest.php');
 
+echo "---------GET request--------------------------------------------\n";
+
 //GET request
 
-$request = new SimpleHttpRequest("http://www.example.com");
+$request = new SimpleHttpRequest("http://localhost/test-server.php");
 $request->addParameter("parameter","value");
 
 $request->init();
 echo $request->doRequest();
 $request->close();
+
+echo "---------POST request-------------------------------------------\n";
 
 //POST request
 
@@ -19,6 +23,19 @@ $request->init();
 echo $request->doRequest();
 $request->clearPost();
 $request->close();
+
+echo "---------request with HTTP header-------------------------------\n";
+
+//request with parameters
+
+$request->addHeader("Content-type", "text");
+
+$request->init();
+echo $request->doRequest();
+$request->removeHeader("Content-type");
+$request->close();
+
+echo "---------request with error-------------------------------------\n";
 
 //request with error
 
