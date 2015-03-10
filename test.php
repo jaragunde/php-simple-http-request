@@ -1,4 +1,10 @@
 <?php
+/*
+ * PHP Simple HTTP Request
+ *
+ * Copyright (c) 2010, 2011 Igalia, S.L.
+ * Licensed under the MIT license.
+ */
 
 include('SimpleHttpRequest.php');
 
